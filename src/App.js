@@ -1,26 +1,70 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
-function App() {
+import Product from './Product';
+import Cart from './Cart'
+
+
+
+export default function App() {
+
+  const [products, getProducts] = useState([]);
+
+  const url = "https://raw.githubusercontent.com/razcristea/some-jsons/master/products.json"
+  
+  
+  useEffect(() => {
+    async function fetchData() {   
+      const response = await fetch(url);
+      const result = await response.json();
+      result.map( item => item.qty = 0 )
+      getProducts(result); 
+    }
+
+    fetchData();
+  }, []);
+    
+  
+    // const handleAdd = (e) =>{
+    //     const boughtItem = e.target.id
+    //     products.map(product=> product.id == boughtItem ? product.qty++ : null)
+    //     console.log(products.filter(item=> boughtItem == item.id))
+    // } 
+  
+    
+    const handleAdd = (e) =>{
+      const boughtItem = e.target.id
+      const newList = products.map((product,index)=> {
+                                    if(product.id == boughtItem) {
+                                      product.qty++
+                                      return product
+                                    } else {
+                                      return product
+                                    }
+                                  })
+      getProducts(newList)
+    } 
+
+
+    const handleRemove = (e) =>{
+        const boughtItem = e.target.id
+        const newList = products.map((product,index)=> {
+                                    if(product.id == boughtItem && product.qty > 0) {
+                                      product.qty--
+                                      return product
+                                    } else {
+                                      return product
+                                    }
+                                  })
+        getProducts(newList)
+    } 
+    
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Product products={products} handleAdd={handleAdd}/>
+      <Cart products={products} handleAdd={handleAdd} handleRemove={handleRemove} />
+      </>
   );
 }
 
-export default App;
